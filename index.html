@@ -203,6 +203,42 @@
         .continue-btn { opacity: 0; pointer-events: none; transition: all 0.5s ease; }
         .continue-btn.show { opacity: 1; pointer-events: all; }
 
+        /* ── Photos Screen ── */
+        .photos-wrap {
+            display: flex; flex-direction: column; align-items: center;
+            width: 100%; max-width: 340px;
+        }
+        .photo-frame {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 18px;
+            padding: 10px 10px 0;
+            width: 100%;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            opacity: 0; transform: translateY(24px);
+            animation: photoReveal 0.8s forwards;
+        }
+        .photo-frame:nth-child(2) { animation-delay: 0.4s; }
+        @keyframes photoReveal {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .photo-frame img {
+            width: 100%; border-radius: 12px;
+            display: block; aspect-ratio: 4/3; object-fit: cover;
+        }
+        .photo-caption {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(16px, 4.5vw, 22px);
+            text-align: center; padding: 12px 8px 14px;
+            color: var(--light-pink);
+        }
+        .photos-gap { height: 18px; flex-shrink: 0; }
+        .photos-btn {
+            margin-top: 28px;
+            opacity: 0; animation: photoReveal 0.6s 1s forwards;
+        }
+
         /* ── Question Screen ── */
         .question-wrap {
             width: 100%; max-width: 420px;
@@ -371,7 +407,23 @@
     <button class="btn btn-primary continue-btn" id="contBtn">I Loved It! Continue &#x2192;</button>
 </div>
 
-<!-- 3: Question -->
+<!-- 3: Photos -->
+<div class="screen" id="scrPhotos">
+    <div class="photos-wrap">
+        <div class="photo-frame">
+            <img src="neha.jpg" alt="">
+            <p class="photo-caption">It's been a while... &#x1F49C;</p>
+        </div>
+        <div class="photos-gap"></div>
+        <div class="photo-frame">
+            <img src="us.jpg" alt="">
+            <p class="photo-caption">And I'm already missing this &#x1F979;</p>
+        </div>
+        <button class="btn btn-primary photos-btn" id="photosBtn">Let's Make More Memories? &#x2728;</button>
+    </div>
+</div>
+
+<!-- 4: Question -->
 <div class="screen" id="scrQuestion">
     <div class="question-wrap">
         <h2 class="question-text">Would you like to go on a date with me?</h2>
@@ -646,7 +698,8 @@
         }, 1400);
 
         $('openBtn').addEventListener('click', function () { go('scrFlowers'); });
-        $('contBtn').addEventListener('click',  function () { go('scrQuestion'); });
+        $('contBtn').addEventListener('click',  function () { go('scrPhotos'); });
+        $('photosBtn').addEventListener('click', function () { go('scrQuestion'); });
 
         /* No button: desktop hover + mobile touch + fallback click */
         var noBtn = $('noBtn');
