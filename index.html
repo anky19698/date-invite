@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>A Little Surprise For You</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --pink: #ff6b9d;
+            --light-pink: #ffa2c4;
+            --dark-pink: #e84393;
+            --rose: #fd79a8;
+            --gold: #ffd700;
+            --green: #00b894;
+            --bg-1: #0f0c29;
+            --bg-2: #302b63;
+            --bg-3: #24243e;
+            --glass: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.13);
+        }
+
+        html, body {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+            color: #fff;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Screens ── */
+        .screen {
+            position: fixed; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 24px;
+            padding-top: max(24px, env(safe-area-inset-top, 0px));
+            padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+            padding-left: max(20px, env(safe-area-inset-left, 0px));
+            padding-right: max(20px, env(safe-area-inset-right, 0px));
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.8s ease;
+            z-index: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .screen.active { opacity: 1; pointer-events: all; }
+
+        /* ── Floating Hearts BG ── */
+        .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .fh {
+            position: absolute; bottom: -40px;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+        @keyframes floatUp {
+            0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+            5%   { opacity: 0.35; }
+            50%  { opacity: 0.15; }
+            95%  { opacity: 0; }
+            100% { transform: translateY(-110vh) rotate(720deg) scale(0.4); opacity: 0; }
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 14px 40px; border: none; border-radius: 50px;
+            font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 500;
+            cursor: pointer; transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+            -webkit-appearance: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--pink), var(--dark-pink));
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(255,107,157,0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(255,107,157,0.6);
+        }
+        .btn-primary:active { transform: translateY(0); }
+
+        /* ── Loading ── */
+        .loader {
+            position: fixed; inset: 0;
+            background: var(--bg-1);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; transition: opacity 0.6s;
+        }
+        .loader.done { opacity: 0; pointer-events: none; }
+        .loader-heart { font-size: 52px; animation: heartBeat 1s ease-in-out infinite; }
+        @keyframes heartBeat {
+            0%,100% { transform: scale(1); }
+            25% { transform: scale(1.25); }
+            40% { transform: scale(1); }
+            60% { transform: scale(1.18); }
+        }
+
+        /* ── Welcome Screen ── */
+        .envelope-wrap { margin-bottom: 36px; animation: gentleFloat 3s ease-in-out infinite; }
+        @keyframes gentleFloat {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .envelope-icon { font-size: 72px; filter: drop-shadow(0 4px 20px rgba(255,107,157,0.5)); }
+
+        .welcome-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(34px, 9vw, 58px);
+            text-align: center; margin-bottom: 10px;
+            min-height: 1.2em;
+        }
+        .cursor-blink::after {
+            content: '|'; animation: blink 0.7s step-end infinite; color: var(--pink);
+        }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+        .welcome-sub {
+            font-size: clamp(14px, 3.5vw, 18px);
+            text-align: center; color: var(--light-pink);
+            margin-bottom: 36px; font-weight: 300;
+            opacity: 0; transform: translateY(16px);
+            transition: all 0.8s ease;
+        }
+        .welcome-sub.show { opacity: 1; transform: translateY(0); }
+
+        .open-btn {
+            opacity: 0; transform: translateY(16px);
+            transition: all 0.6s ease;
+        }
+        .open-btn.show { opacity: 1; transform: translateY(0); }
+
+        /* ── Flowers Screen ── */
+        .section-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(28px, 7vw, 42px);
+            text-align: center; margin-bottom: 6px;
+        }
+        .section-sub {
+            font-size: clamp(13px, 3vw, 16px);
+            color: var(--light-pink); text-align: center;
+            margin-bottom: 24px; font-weight: 300;
+        }
+
+        .flower-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 14px; width: 100%; max-width: 380px;
+            margin-bottom: 24px;
+        }
+        .flower-card { aspect-ratio: 1; perspective: 900px; cursor: pointer; }
+        .flower-inner {
+            width: 100%; height: 100%;
+            position: relative; transform-style: preserve-3d;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .flower-card.opened .flower-inner { transform: rotateY(180deg); }
+
+        .flower-front, .flower-back {
+            position: absolute; inset: 0;
+            backface-visibility: hidden; -webkit-backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 10px;
+        }
+        .flower-front {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
+        .flower-front .emoji {
+            font-size: clamp(36px, 9vw, 50px);
+            margin-bottom: 4px; transition: transform 0.3s;
+        }
+        .flower-card:not(.opened):active .emoji { transform: scale(1.25) rotate(12deg); }
+        .flower-front .fname {
+            font-size: clamp(11px, 2.5vw, 13px);
+            color: var(--light-pink); font-weight: 300;
+        }
+        .flower-back {
+            background: linear-gradient(135deg, rgba(255,107,157,0.22), rgba(232,67,147,0.22));
+            border: 1px solid rgba(255,107,157,0.3);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            transform: rotateY(180deg);
+        }
+        .flower-back .emoji-sm { font-size: 26px; margin-bottom: 8px; }
+        .flower-back .msg {
+            font-size: clamp(11px, 2.8vw, 13px);
+            text-align: center; line-height: 1.45;
+            font-style: italic; color: #ffd6e5;
+        }
+
+        .continue-btn { opacity: 0; pointer-events: none; transition: all 0.5s ease; }
+        .continue-btn.show { opacity: 1; pointer-events: all; }
+
+        /* ── Question Screen ── */
+        .question-wrap {
+            width: 100%; max-width: 420px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .question-text {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(30px, 7.5vw, 48px);
+            text-align: center; margin-bottom: 36px; line-height: 1.3;
+        }
+        .btn-area {
+            position: relative; width: 100%; height: 260px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-yes {
+            background: linear-gradient(135deg, var(--green), #00cec9);
+            color: #fff; padding: 16px 48px; font-size: 18px; font-weight: 600;
+            box-shadow: 0 4px 24px rgba(0,184,148,0.45);
+            z-index: 2; transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn-yes:hover {
+            transform: scale(1.06);
+            box-shadow: 0 6px 32px rgba(0,184,148,0.65);
+        }
+        .btn-no {
+            background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.65);
+            padding: 16px 44px; font-size: 18px;
+            border: 1px solid rgba(255,255,255,0.18);
+            z-index: 2; touch-action: none;
+            transition: left 0.25s ease, top 0.25s ease, transform 0.3s, font-size 0.3s;
+        }
+        .btn-no-abs {
+            position: absolute !important;
+        }
+
+        .attempts-msg {
+            position: absolute; bottom: 10px;
+            font-size: 13px; color: var(--light-pink);
+            opacity: 0; transition: opacity 0.4s;
+            font-weight: 300; text-align: center;
+        }
+        .attempts-msg.show { opacity: 1; }
+
+        /* ── Booking Screen ── */
+        .booking-form { width: 100%; max-width: 400px; }
+        .form-label {
+            font-size: 14px; color: var(--light-pink);
+            margin-bottom: 10px; display: block; font-weight: 300;
+        }
+        .date-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 8px; margin-bottom: 24px;
+        }
+        .date-chip, .time-chip {
+            padding: 10px 4px; border-radius: 12px;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            color: #fff; text-align: center; cursor: pointer;
+            transition: all 0.3s; font-family: 'Poppins', sans-serif;
+            -webkit-appearance: none;
+        }
+        .date-chip:active, .time-chip:active { transform: scale(0.95); }
+        .date-chip.sel, .time-chip.sel {
+            background: rgba(255,107,157,0.3); border-color: var(--pink);
+            box-shadow: 0 0 12px rgba(255,107,157,0.2);
+        }
+        .date-chip .dn { font-size: 10px; color: var(--light-pink); display: block; margin-bottom: 2px; }
+        .date-chip .dd { font-size: 16px; font-weight: 600; display: block; }
+        .date-chip .dm { font-size: 10px; color: var(--light-pink); display: block; margin-top: 1px; }
+
+        .time-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 8px; margin-bottom: 28px;
+        }
+        .time-chip { font-size: 13px; padding: 12px 6px; }
+
+        .confirm-btn {
+            width: 100%; padding: 16px; font-size: 16px;
+            opacity: 0.4; pointer-events: none; transition: all 0.4s;
+        }
+        .confirm-btn.ready { opacity: 1; pointer-events: all; }
+
+        /* ── Confirmation Screen ── */
+        .conf-icon { font-size: 80px; margin-bottom: 20px; animation: bounceIn 0.8s; }
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.25); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        .conf-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(34px, 9vw, 54px);
+            text-align: center; margin-bottom: 16px;
+        }
+        .conf-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 18px; padding: 22px 32px; text-align: center;
+            margin-bottom: 24px;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
+        .conf-label { font-size: 12px; color: var(--light-pink); margin-bottom: 4px; }
+        .conf-value { font-size: 18px; font-weight: 600; margin-bottom: 14px; }
+        .conf-value:last-child { margin-bottom: 0; }
+        .conf-msg {
+            font-size: clamp(14px, 3.5vw, 18px);
+            color: var(--light-pink); text-align: center;
+            font-weight: 300; font-style: italic;
+        }
+
+        /* ── Confetti ── */
+        .confetti-box { position: fixed; inset: 0; pointer-events: none; z-index: 100; overflow: hidden; }
+        .confetti-piece {
+            position: absolute; top: -12px;
+            border-radius: 3px;
+            animation: confDrop linear forwards;
+        }
+        @keyframes confDrop {
+            0%   { transform: translateY(0) rotateZ(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotateZ(720deg); opacity: 0; }
+        }
+
+        /* ── Sparkles ── */
+        .sparkle {
+            position: fixed; pointer-events: none;
+            animation: pop 0.55s forwards;
+            z-index: 50;
+        }
+        @keyframes pop {
+            0%,100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        ::-webkit-scrollbar { width: 0; height: 0; }
+
+        @media (hover: hover) {
+            .flower-card:not(.opened):hover .emoji {
+                transform: scale(1.2) rotate(10deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loader" id="loader"><div class="loader-heart">&#x1F49D;</div></div>
+
+<!-- Floating Hearts -->
+<div class="hearts-bg" id="heartsBg"></div>
+
+<!-- Confetti -->
+<div class="confetti-box" id="confBox"></div>
+
+<!-- 1: Welcome -->
+<div class="screen active" id="scrWelcome">
+    <div class="envelope-wrap"><div class="envelope-icon">&#x1F48C;</div></div>
+    <h1 class="welcome-title cursor-blink" id="wtitle"></h1>
+    <p class="welcome-sub" id="wsub">I made something special just for you</p>
+    <button class="btn btn-primary open-btn" id="openBtn">Open Your Surprise &#x2728;</button>
+</div>
+
+<!-- 2: Flowers -->
+<div class="screen" id="scrFlowers">
+    <h2 class="section-title">A Garden of Secrets</h2>
+    <p class="section-sub">Tap each flower to reveal its hidden message</p>
+    <div class="flower-grid" id="flowerGrid"></div>
+    <button class="btn btn-primary continue-btn" id="contBtn">I Loved It! Continue &#x2192;</button>
+</div>
+
+<!-- 3: Question -->
+<div class="screen" id="scrQuestion">
+    <div class="question-wrap">
+        <h2 class="question-text">Would you like to go on a date with me?</h2>
+        <div class="btn-area" id="btnArea">
+            <button class="btn btn-yes" id="yesBtn">Yes! &#x1F495;</button>
+            <button class="btn btn-no" id="noBtn">No</button>
+            <p class="attempts-msg" id="attMsg"></p>
+        </div>
+    </div>
+</div>
+
+<!-- 4: Booking -->
+<div class="screen" id="scrBooking">
+    <h2 class="section-title">Yay! Let's Plan Our Date!</h2>
+    <p class="section-sub">Pick a day and time that works for you</p>
+    <div class="booking-form">
+        <label class="form-label">Choose a Date</label>
+        <div class="date-grid" id="dateGrid"></div>
+        <label class="form-label">Choose a Time (Evening slots)</label>
+        <div class="time-grid" id="timeGrid"></div>
+        <button class="btn btn-primary confirm-btn" id="confirmBtn">Confirm Our Date &#x1F49D;</button>
+    </div>
+</div>
+
+<!-- 5: Confirmation -->
+<div class="screen" id="scrConfirm">
+    <div class="conf-icon">&#x1F49D;</div>
+    <h2 class="conf-title">It's a Date!</h2>
+    <div class="conf-card">
+        <div class="conf-label">Date</div>
+        <div class="conf-value" id="cDate">-</div>
+        <div class="conf-label">Time</div>
+        <div class="conf-value" id="cTime">-</div>
+    </div>
+    <p class="conf-msg">Can't wait to see you! &#x1F970;</p>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    const FLOWERS = [
+        { emoji: '\u{1F339}', name: 'Rose',      msg: 'Your smile makes my heart skip a beat every single time' },
+        { emoji: '\u{1F337}', name: 'Tulip',      msg: 'Every moment spent with you feels like a beautiful dream' },
+        { emoji: '\u{1F338}', name: 'Blossom',    msg: 'You are the most beautiful soul I have ever known' },
+        { emoji: '\u{1F33A}', name: 'Hibiscus',   msg: 'My world became so much brighter the day you walked in' },
+        { emoji: '\u{1F33B}', name: 'Sunflower',  msg: 'You are my sunshine even on the cloudiest of days' },
+        { emoji: '\u{1F490}', name: 'Bouquet',    msg: 'I feel like the luckiest person alive just knowing you' },
+    ];
+
+    const TIMES = ['6:00 PM','6:30 PM','7:00 PM','7:30 PM','8:00 PM','8:30 PM','9:00 PM'];
+
+    const DAYS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const HEART_POOL = ['\u{1F497}','\u{1F495}','\u2728','\u{1F496}','\u{1F90D}','\u{1F4AB}'];
+
+    let openedCount = 0, selDate = null, selTime = null, noAttempts = 0;
+
+    const $ = id => document.getElementById(id);
+
+    /* ── Floating Hearts ── */
+    function spawnHearts() {
+        const box = $('heartsBg');
+        for (let i = 0; i < 22; i++) {
+            const s = document.createElement('span');
+            s.className = 'fh';
+            s.textContent = HEART_POOL[Math.random() * HEART_POOL.length | 0];
+            s.style.left = Math.random() * 100 + '%';
+            s.style.fontSize = (14 + Math.random() * 20) + 'px';
+            s.style.animationDuration = (9 + Math.random() * 14) + 's';
+            s.style.animationDelay = (Math.random() * 12) + 's';
+            box.appendChild(s);
+        }
+    }
+
+    /* ── Screen transitions ── */
+    function go(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        setTimeout(() => $(id).classList.add('active'), 120);
+    }
+
+    /* ── Typewriter ── */
+    function typeWriter(el, text, speed) {
+        speed = speed || 75;
+        el.textContent = '';
+        let i = 0;
+        return new Promise(function (resolve) {
+            (function tick() {
+                if (i < text.length) {
+                    el.textContent += text.charAt(i++);
+                    setTimeout(tick, speed);
+                } else {
+                    el.classList.remove('cursor-blink');
+                    resolve();
+                }
+            })();
+        });
+    }
+
+    /* ── Flowers ── */
+    function buildFlowers() {
+        const grid = $('flowerGrid');
+        FLOWERS.forEach(function (f) {
+            const card = document.createElement('div');
+            card.className = 'flower-card';
+            card.innerHTML =
+                '<div class="flower-inner">' +
+                    '<div class="flower-front">' +
+                        '<span class="emoji">' + f.emoji + '</span>' +
+                        '<span class="fname">' + f.name + '</span>' +
+                    '</div>' +
+                    '<div class="flower-back">' +
+                        '<span class="emoji-sm">' + f.emoji + '</span>' +
+                        '<p class="msg">\u201C' + f.msg + '\u201D</p>' +
+                    '</div>' +
+                '</div>';
+            card.addEventListener('click', function () {
+                if (card.classList.contains('opened')) return;
+                card.classList.add('opened');
+                sparkleAround(card);
+                openedCount++;
+                if (openedCount >= 2) $('contBtn').classList.add('show');
+            });
+            grid.appendChild(card);
+        });
+    }
+
+    function sparkleAround(el) {
+        var r = el.getBoundingClientRect();
+        var pool = ['\u2728','\u{1F4AB}','\u2B50','\u{1F495}'];
+        for (var i = 0; i < 7; i++) {
+            var s = document.createElement('span');
+            s.className = 'sparkle';
+            s.textContent = pool[Math.random() * pool.length | 0];
+            s.style.left = (r.left + Math.random() * r.width) + 'px';
+            s.style.top  = (r.top  + Math.random() * r.height) + 'px';
+            s.style.fontSize = (14 + Math.random() * 10) + 'px';
+            document.body.appendChild(s);
+            setTimeout(function () { s.remove(); }, 600);
+        }
+    }
+
+    /* ── Dates ── */
+    function buildDates() {
+        var grid = $('dateGrid');
+        var today = new Date();
+        for (var i = 1; i <= 12; i++) {
+            var d = new Date(today);
+            d.setDate(today.getDate() + i);
+            var chip = document.createElement('div');
+            chip.className = 'date-chip';
+            chip.dataset.val = d.toDateString();
+            chip.innerHTML = '<span class="dn">' + DAYS[d.getDay()] + '</span>' +
+                             '<span class="dd">' + d.getDate() + '</span>' +
+                             '<span class="dm">' + MONTHS[d.getMonth()] + '</span>';
+            chip.addEventListener('click', pickDate);
+            grid.appendChild(chip);
+        }
+    }
+    function pickDate(e) {
+        var chip = e.currentTarget;
+        document.querySelectorAll('.date-chip').forEach(function (c) { c.classList.remove('sel'); });
+        chip.classList.add('sel');
+        selDate = chip.dataset.val;
+        checkReady();
+    }
+
+    /* ── Times ── */
+    function buildTimes() {
+        var grid = $('timeGrid');
+        TIMES.forEach(function (t) {
+            var chip = document.createElement('div');
+            chip.className = 'time-chip';
+            chip.textContent = t;
+            chip.addEventListener('click', function () {
+                document.querySelectorAll('.time-chip').forEach(function (c) { c.classList.remove('sel'); });
+                chip.classList.add('sel');
+                selTime = t;
+                checkReady();
+            });
+            grid.appendChild(chip);
+        });
+    }
+    function checkReady() {
+        var btn = $('confirmBtn');
+        if (selDate && selTime) btn.classList.add('ready');
+        else btn.classList.remove('ready');
+    }
+
+    /* ── No-button escape ── */
+    function escapeNo(e) {
+        if (e) e.preventDefault();
+        noAttempts++;
+        var noBtn = $('noBtn');
+        var yesBtn = $('yesBtn');
+        var area = $('btnArea');
+        var aRect = area.getBoundingClientRect();
+
+        noBtn.classList.add('btn-no-abs');
+
+        var bw = noBtn.offsetWidth, bh = noBtn.offsetHeight;
+        var maxX = aRect.width  - bw  - 10;
+        var maxY = aRect.height - bh  - 10;
+        noBtn.style.left = (10 + Math.random() * Math.max(0, maxX)) + 'px';
+        noBtn.style.top  = (10 + Math.random() * Math.max(0, maxY)) + 'px';
+
+        var scale = Math.max(0.55, 1 - noAttempts * 0.04);
+        noBtn.style.transform = 'scale(' + scale + ')';
+
+        var yScale = Math.min(1.35, 1 + noAttempts * 0.025);
+        yesBtn.style.transform = 'scale(' + yScale + ')';
+        yesBtn.style.animation = 'none';
+
+        var msg = $('attMsg');
+        if (noAttempts === 3)       { noBtn.textContent = 'Are you sure? \u{1F97A}'; msg.textContent = 'Hmm that button seems broken...'; msg.classList.add('show'); }
+        else if (noAttempts === 6)  { noBtn.textContent = 'Please? \u{1F979}'; msg.textContent = 'I think the universe wants you to say yes!'; }
+        else if (noAttempts === 10) { noBtn.textContent = 'Pretty please?'; msg.textContent = 'That button is never gonna work \u{1F609}'; }
+        else if (noAttempts > 13)   { noBtn.textContent = '\u{1F622}'; }
+    }
+
+    /* ── Confetti ── */
+    function boom() {
+        var box = $('confBox');
+        var colors = ['#ff6b9d','#ffd700','#00b894','#6c5ce7','#fd79a8','#00cec9','#ff7675','#a29bfe'];
+        for (var i = 0; i < 100; i++) {
+            var p = document.createElement('div');
+            p.className = 'confetti-piece';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.backgroundColor = colors[Math.random() * colors.length | 0];
+            var sz = 6 + Math.random() * 9;
+            p.style.width = sz + 'px';
+            p.style.height = sz + 'px';
+            p.style.animationDuration = (1.8 + Math.random() * 2.2) + 's';
+            p.style.animationDelay = (Math.random() * 0.6) + 's';
+            box.appendChild(p);
+            (function (el) { setTimeout(function () { el.remove(); }, 4500); })(p);
+        }
+    }
+
+    /* ── Email via FormSubmit ── */
+    function sendEmail() {
+        var data = new FormData();
+        data.append('_subject', '\u{1F389} She Said YES! Date Confirmed!');
+        data.append('message',
+            'Date confirmed!\n\n' +
+            'Date: ' + selDate + '\n' +
+            'Time: ' + selTime + '\n\n' +
+            'She said YES! \u{1F973}'
+        );
+        data.append('_captcha', 'false');
+        data.append('_template', 'table');
+
+        fetch('https://formsubmit.co/ajax/ankit.gujare@gmail.com', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: data
+        }).catch(function () { /* silent */ });
+    }
+
+    /* ── Wire events ── */
+    function init() {
+        spawnHearts();
+        buildFlowers();
+        buildDates();
+        buildTimes();
+
+        /* loader → welcome */
+        setTimeout(function () {
+            $('loader').classList.add('done');
+            typeWriter($('wtitle'), 'Hey Beautiful\u2026', 90).then(function () {
+                $('wsub').classList.add('show');
+                $('openBtn').classList.add('show');
+            });
+        }, 1400);
+
+        $('openBtn').addEventListener('click', function () { go('scrFlowers'); });
+        $('contBtn').addEventListener('click',  function () { go('scrQuestion'); });
+
+        /* No button: desktop hover + mobile touch + fallback click */
+        var noBtn = $('noBtn');
+        noBtn.addEventListener('mouseenter',  escapeNo);
+        noBtn.addEventListener('touchstart',  escapeNo, { passive: false });
+        noBtn.addEventListener('click',       escapeNo);
+
+        /* Yes button */
+        $('yesBtn').addEventListener('click', function () {
+            boom();
+            setTimeout(function () { go('scrBooking'); }, 900);
+        });
+
+        /* Confirm */
+        $('confirmBtn').addEventListener('click', function () {
+            if (!selDate || !selTime) return;
+            $('cDate').textContent = selDate;
+            $('cTime').textContent = selTime;
+            go('scrConfirm');
+            setTimeout(boom, 400);
+            sendEmail();
+        });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+})();
+</script>
+</body>
+</html>
