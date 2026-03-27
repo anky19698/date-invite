@@ -149,11 +149,11 @@
         }
 
         .flower-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 14px; width: 100%; max-width: 380px;
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 16px; width: 100%; max-width: 340px;
             margin-bottom: 24px;
         }
-        .flower-card { aspect-ratio: 1; perspective: 900px; cursor: pointer; }
+        .flower-card { aspect-ratio: 0.85; perspective: 900px; cursor: pointer; }
         .flower-inner {
             width: 100%; height: 100%;
             position: relative; transform-style: preserve-3d;
@@ -167,7 +167,8 @@
             border-radius: 16px;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            padding: 10px;
+            padding: 12px;
+            overflow: hidden;
         }
         .flower-front {
             background: var(--glass);
@@ -189,11 +190,14 @@
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             transform: rotateY(180deg);
         }
-        .flower-back .emoji-sm { font-size: 26px; margin-bottom: 8px; }
+        .flower-back .emoji-sm { font-size: 22px; margin-bottom: 6px; flex-shrink: 0; }
         .flower-back .msg {
             font-size: clamp(11px, 2.8vw, 13px);
-            text-align: center; line-height: 1.45;
+            text-align: center; line-height: 1.4;
             font-style: italic; color: #ffd6e5;
+            overflow: hidden;
+            display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+            word-break: break-word;
         }
 
         .continue-btn { opacity: 0; pointer-events: none; transition: all 0.5s ease; }
@@ -410,12 +414,10 @@
     'use strict';
 
     const FLOWERS = [
-        { emoji: '\u{1F339}', name: 'Rose',      msg: 'Your smile makes my heart skip a beat every single time' },
-        { emoji: '\u{1F337}', name: 'Tulip',      msg: 'Every moment spent with you feels like a beautiful dream' },
-        { emoji: '\u{1F338}', name: 'Blossom',    msg: 'You are the most beautiful soul I have ever known' },
-        { emoji: '\u{1F33A}', name: 'Hibiscus',   msg: 'My world became so much brighter the day you walked in' },
-        { emoji: '\u{1F33B}', name: 'Sunflower',  msg: 'You are my sunshine even on the cloudiest of days' },
-        { emoji: '\u{1F490}', name: 'Bouquet',    msg: 'I feel like the luckiest person alive just knowing you' },
+        { emoji: '\u{1F339}', name: 'Rose',      msg: 'Your smile makes my heart skip a beat' },
+        { emoji: '\u{1F337}', name: 'Tulip',      msg: 'Every moment with you is a beautiful dream' },
+        { emoji: '\u{1F33C}', name: 'Lily',       msg: 'You are the most beautiful soul I know' },
+        { emoji: '\u{1F33B}', name: 'Sunflower',  msg: 'You are my sunshine on cloudy days' },
     ];
 
     const TIMES = ['6:00 PM','6:30 PM','7:00 PM','7:30 PM','8:00 PM','8:30 PM','9:00 PM'];
